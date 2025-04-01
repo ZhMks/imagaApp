@@ -1,5 +1,5 @@
 import Foundation
 
-struct MainResponseModel: Decodable {
+struct MainResponseModel: Codable {
     
 }

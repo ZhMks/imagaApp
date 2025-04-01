@@ -1,11 +1,11 @@
 import UIKit
-protocol ISearchFieldDelegate: AnyObject {
+protocol ISearchField: AnyObject {
     func cancelButtonTapped()
 }
 
 final class SearchField: UITextField {
     // MARK: - properties
-    weak var searchFieldDelegate: ISearchFieldDelegate?
+    weak var searchFieldDelegate: ISearchField?
   
     private let searchButton: UIButton = {
         let item = UIButton(type: .system)
@@ -64,6 +64,7 @@ final class SearchField: UITextField {
             }
         }
     }
+    
     override func editingRect(forBounds bounds: CGRect) -> CGRect {
         return CGRectInset(
             CGRect(
@@ -72,8 +73,7 @@ final class SearchField: UITextField {
                 width: bounds.width - Constants.spacing * 3,
                 height: bounds.height
             ),
-            Constants.spacing,
-            0
+            Constants.spacing,0
         )
     }
 }
@@ -81,7 +81,9 @@ final class SearchField: UITextField {
 private extension SearchField {
     
     @objc func cancelButtonDidTap() {
-        text = nil
+        if text != nil {
+            text = nil
+        }
         searchFieldDelegate?.cancelButtonTapped()
     }
     

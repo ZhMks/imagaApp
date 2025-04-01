@@ -7,4 +7,5 @@ target 'imageApp' do
 
   # Pods for imageApp
 pod 'Kingfisher', '~> 8.0'
+pod 'SwiftGen', '~> 6.0'
 end

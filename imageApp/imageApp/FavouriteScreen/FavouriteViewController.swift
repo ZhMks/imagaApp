@@ -27,15 +27,31 @@ final class FavouriteViewController: UIViewController {
         view.backgroundColor = .red
     }
 }
+// MARK: - view output
+extension FavouriteViewController: IFavouriteScreenView {
+    func showDetailScreen(_ controller: UIViewController) {
+        DispatchQueue.main.async {
+            self.navigationController?.pushViewController(controller, animated: true)
+        }
+    }
+    
+    func updateData() {
+        DispatchQueue.main.async {
+            self.favouriteTableView.reloadData()
+        }
+    }
+}
 // MARK: - tableView datasource
 extension FavouriteViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        1
+        return presenter.returnNumberOfItems()
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: FavouriteTableCell.identifier, for: indexPath) as? FavouriteTableCell else { return UITableViewCell() }
         cell.backgroundColor = .green
+        let dataForCell = presenter.returnModelList()[indexPath.row]
+        cell.updateCell(model: dataForCell)
         return cell
     }
 }
@@ -48,6 +64,7 @@ private extension FavouriteViewController {
     func addSubviews() {
         view.addSubview(favouriteTableView)
     }
+    
     func createConstraints() {
         let safeArea = view.safeAreaLayoutGuide
         NSLayoutConstraint.activate([
@@ -57,6 +74,7 @@ private extension FavouriteViewController {
             favouriteTableView.bottomAnchor.constraint(equalTo: safeArea.bottomAnchor)
         ])
     }
+    
     func setupTableView() {
         favouriteTableView.delegate = self
         favouriteTableView.dataSource = self

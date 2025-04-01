@@ -1,4 +1,5 @@
 import UIKit
+import Kingfisher
 
 final class FavouriteTableCell: UITableViewCell {
     // MARK: - properties
@@ -13,6 +14,7 @@ final class FavouriteTableCell: UITableViewCell {
     private let authorNameLabel: UILabel = {
         let item = UILabel()
         item.translatesAutoresizingMaskIntoConstraints = false
+        item.textColor = Asset.textColor.color
         return item
     }()
     // MARK: - lifecycle
@@ -24,16 +26,29 @@ final class FavouriteTableCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func updateCell(model: MainResponseModel) {
-        
+    func updateCell(model: FavouriteModel) {
+        guard let stringFromModel = model.url else { return }
+        let url = URL(string: stringFromModel)
+        favouriteImageView.kf.setImage(with: url, placeholder: UIImage(systemName: "xmark")) { [weak self] result in
+            switch result {
+            case .success(let retrivedImage):
+                DispatchQueue.main.async {
+                    self?.favouriteImageView.image = retrivedImage.image
+                }
+            case .failure(let error):
+                print(error.localizedDescription)
+            }
+        }
     }
 }
 // MARK: - layout
 private extension FavouriteTableCell {
+    
     func addSubviews() {
         contentView.addSubview(favouriteImageView)
         contentView.addSubview(authorNameLabel)
     }
+    
     func createConstraints() {
         let safeArea = contentView.safeAreaLayoutGuide
         NSLayoutConstraint.activate(
@@ -41,21 +56,31 @@ private extension FavouriteTableCell {
             createConstraintsForNameLabel(safeArea)
         )
     }
+    
     func createConstraintsForImageView(_ safeArea: UILayoutGuide) -> [NSLayoutConstraint] {
-        [
+        let heightAspect: CGFloat = (Constants.imageWidth / (UIScreen.main.bounds.width - Spacing.standar))
+        return [
             favouriteImageView.topAnchor.constraint(equalTo: safeArea.topAnchor),
             favouriteImageView.leadingAnchor.constraint(equalTo: safeArea.leadingAnchor),
             favouriteImageView.trailingAnchor.constraint(lessThanOrEqualTo: authorNameLabel.leadingAnchor),
-            favouriteImageView.heightAnchor.constraint(equalToConstant: 40),
-            favouriteImageView.widthAnchor.constraint(equalToConstant: 40),
+            favouriteImageView.heightAnchor.constraint(equalTo: favouriteImageView.widthAnchor, multiplier: heightAspect),
+            favouriteImageView.widthAnchor.constraint(equalToConstant: Constants.imageWidth),
             favouriteImageView.bottomAnchor.constraint(equalTo: safeArea.bottomAnchor)
         ]
     }
+    
     func createConstraintsForNameLabel(_ safeArea: UILayoutGuide) -> [NSLayoutConstraint] {
         [
             authorNameLabel.centerYAnchor.constraint(equalTo: favouriteImageView.centerYAnchor),
             authorNameLabel.trailingAnchor.constraint(lessThanOrEqualTo: safeArea.trailingAnchor),
             authorNameLabel.bottomAnchor.constraint(equalTo: safeArea.bottomAnchor)
         ]
+    }
+}
+// MARK: - constants
+private extension FavouriteTableCell {
+    enum Constants {
+        static let imageHeight: CGFloat = 40.0
+        static let imageWidth: CGFloat = 40.0
     }
 }

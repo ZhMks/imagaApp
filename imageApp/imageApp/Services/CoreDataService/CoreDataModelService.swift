@@ -24,11 +24,11 @@ final class CoreDataModelService {
     
     func addNewModel(_ model: FavouriteViewModel) {
         guard let modelsArray = self.modelsArray else { return }
-        if modelsArray.contains(where: { $0.objectID != model.objectID }) {
-            let newModelToSave = FavouriteModel(context: coreDataSerivce.context)
-            coreDataSerivce.saveContext()
-            initialFetch()
-        }
+        //        if modelsArray.contains(where: { $0.objectID != model.objectID }) {
+        //            let newModelToSave = FavouriteModel(context: coreDataSerivce.context)
+        //            coreDataSerivce.saveContext()
+        //            initialFetch()
+        //        }
     }
     
     func removeModel(_ model: FavouriteModel, completion: (Result<Bool, CustomError>) -> Void) {
@@ -42,6 +42,11 @@ final class CoreDataModelService {
                 completion(.failure(.failedToDelete))
             }
         }
+    }
+    
+    func returnData() -> [FavouriteModel] {
+        guard let modelsArray = modelsArray else { return [] }
+        return modelsArray
     }
 }
 // MARK: - private funcs
