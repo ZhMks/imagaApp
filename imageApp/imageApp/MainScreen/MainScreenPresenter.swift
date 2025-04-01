@@ -1,7 +1,13 @@
-//
-//  MainScreenPresenter.swift
-//  imageApp
-//
-//  Created by ZHMKS on 01.04.2025.
-//
+import UIKit
 
+protocol IMainScreePresenter: AnyObject {
+    
+}
+
+protocol IMainScreenView: AnyObject {
+    
+}
+
+final class MainScreenPresenter: IMainScreePresenter {
+    weak var view: IMainScreenView?
+}

@@ -1,7 +1,9 @@
-//
-//  FavouritePresenter.swift
-//  imageApp
-//
-//  Created by ZHMKS on 01.04.2025.
-//
+import UIKit
+
+protocol IFavouriteScreenPresenter: AnyObject {}
+protocol IFavouriteScreenView: AnyObject {}
+
+final class FavouritePresenter: IFavouriteScreenPresenter {
+    weak var view: IFavouriteScreenView?
+}
 

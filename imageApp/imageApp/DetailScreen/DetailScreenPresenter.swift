@@ -1,7 +1,13 @@
-//
-//  DetailScreenPresenter.swift
-//  imageApp
-//
-//  Created by ZHMKS on 01.04.2025.
-//
+import UIKit
 
+protocol IDetailScreenPresenter: AnyObject {
+    
+}
+
+protocol IDetailScreenView: AnyObject {
+    
+}
+
+final class DetailScreenPresenter: IDetailScreenPresenter {
+    weak var view: IDetailScreenView?
+}

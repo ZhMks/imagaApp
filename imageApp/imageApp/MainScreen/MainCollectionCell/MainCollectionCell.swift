@@ -1,4 +1,5 @@
 import UIKit
+import Kingfisher
 
 final class MainCollectionCell: UICollectionViewCell {
     // MARK: - properties
@@ -23,7 +24,7 @@ final class MainCollectionCell: UICollectionViewCell {
     }
     
     func updateCell(model: MainResponseModel) {
-        
+      
     }
     
 }

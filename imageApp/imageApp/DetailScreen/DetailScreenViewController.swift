@@ -2,6 +2,8 @@ import UIKit
 
 final class DetailScreenViewController: UIViewController {
     // MARK: - properties
+    private let presenter: IDetailScreenPresenter
+    
     private let photoImageView: UIImageView = {
         let item = UIImageView()
         item.translatesAutoresizingMaskIntoConstraints = false
@@ -37,6 +39,15 @@ final class DetailScreenViewController: UIViewController {
         return item
     }()
     // MARK: - lifecycle
+    init(presenter: IDetailScreenPresenter) {
+        self.presenter = presenter
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         addSubviews()
@@ -70,9 +81,9 @@ extension DetailScreenViewController {
     }
     func createConstraintsForLabelsStackView(_ safeArea: UILayoutGuide) -> [NSLayoutConstraint] {
         [
-            labelsStackView.topAnchor.constraint(equalTo: photoImageView.bottomAnchor, constant: 16.0),
-            labelsStackView.leadingAnchor.constraint(equalTo: safeArea.leadingAnchor, constant: 16.0),
-            labelsStackView.trailingAnchor.constraint(equalTo: safeArea.trailingAnchor, constant: -16.0)
+            labelsStackView.topAnchor.constraint(equalTo: photoImageView.bottomAnchor, constant: Spacing.standar),
+            labelsStackView.leadingAnchor.constraint(equalTo: safeArea.leadingAnchor, constant: Spacing.standar),
+            labelsStackView.trailingAnchor.constraint(equalTo: safeArea.trailingAnchor, constant: -Spacing.standar)
         ]
     }
 }
