@@ -22,7 +22,7 @@ final class CoreDataModelService {
         initialFetch()
     }
     
-    func addNewModel(_ model: FavouriteViewModel) {
+    func addNewModel(_ model: DetailScreenModel) {
         guard let modelsArray = self.modelsArray else { return }
         //        if modelsArray.contains(where: { $0.objectID != model.objectID }) {
         //            let newModelToSave = FavouriteModel(context: coreDataSerivce.context)

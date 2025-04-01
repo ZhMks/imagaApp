@@ -41,7 +41,7 @@ final class FavouritePresenter: IFavouriteScreenPresenter {
     func pushDetailedScreen(with model: FavouriteModel) {
         guard let modelString = model.url else { return }
         let detailedModel = DetailScreenModel(url: modelString)
-        let detailScreen = ModuleBuilder.createDetailedScreen(model: detailedModel)
+        let detailScreen = ModuleBuilder.createDetailedScreen(model: detailedModel, coreDataService: coreDataModelService)
         DispatchQueue.main.async {
             self.view?.showDetailScreen(detailScreen)
         }

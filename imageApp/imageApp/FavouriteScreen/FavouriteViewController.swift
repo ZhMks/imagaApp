@@ -24,7 +24,7 @@ final class FavouriteViewController: UIViewController {
         addSubviews()
         createConstraints()
         setupTableView()
-        view.backgroundColor = .red
+        view.backgroundColor = Asset.backgroundColor.color
     }
 }
 // MARK: - view output

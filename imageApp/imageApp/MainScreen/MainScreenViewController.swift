@@ -30,8 +30,9 @@ class MainScreenViewController: UIViewController {
         addSubviews()
         createConstraints()
         setupCollectionView()
-        view.backgroundColor = .yellow
+        view.backgroundColor = Asset.backgroundColor.color
         presenter.viewDidLoad(self)
+        presenter.fetchData()
     }
 }
 // MARK: - collectionView DataSource

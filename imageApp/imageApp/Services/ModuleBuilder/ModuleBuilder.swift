@@ -19,7 +19,8 @@ final class ModuleBuilder {
         let dataService = DataService(networkService: networkService, decoderService: decoderService)
         let presenter = MainScreenPresenter(dataService: dataService)
         let mainScreen = MainScreenViewController(presenter: presenter)
-        let leftTabBarItem = UITabBarItem(title: "Главная", image: UIImage(systemName: "checkmark"), tag: 0)
+        let leftTabBarItem = UITabBarItem(title: "Главная", image: UIImage(systemName: "photo"), tag: 0)
+        leftTabBarItem.selectedImage = UIImage(systemName: "photo.fill")
         mainScreen.tabBarItem = leftTabBarItem
         return mainScreen
     }
@@ -28,13 +29,14 @@ final class ModuleBuilder {
         let coreDataModelService = CoreDataModelService()
         let presenter = FavouritePresenter(coreDataModelService: coreDataModelService)
         let favouriteScreen = FavouriteViewController(presenter: presenter)
-        let rightTabBarItem = UITabBarItem(title: "Избранное", image: UIImage(systemName: "xmark"), tag: 1)
+        let rightTabBarItem = UITabBarItem(title: "Избранное", image: UIImage(systemName: "heart"), tag: 1)
+        rightTabBarItem.selectedImage = UIImage(systemName: "heart.fill")
         favouriteScreen.tabBarItem = rightTabBarItem
         return favouriteScreen
     }
     
-    static func createDetailedScreen(model: DetailScreenModel) -> UIViewController {
-        let presenter = DetailScreenPresenter(model: model)
+    static func createDetailedScreen(model: DetailScreenModel, coreDataService: CoreDataModelService) -> UIViewController {
+        let presenter = DetailScreenPresenter(model: model, coreDataService: coreDataService)
         let detailedScreen = DetailScreenViewController(presenter: presenter)
         return detailedScreen
     }

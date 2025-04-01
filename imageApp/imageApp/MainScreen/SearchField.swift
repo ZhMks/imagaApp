@@ -12,13 +12,13 @@ final class SearchField: UITextField {
         item.translatesAutoresizingMaskIntoConstraints = false
         let image = UIImage(systemName: "magnifyingglass")?.withRenderingMode(.alwaysTemplate)
         item.setBackgroundImage(image, for: .normal)
-        item.tintColor = .systemGray
+        item.tintColor = Asset.accentColor.color
         return item
     }()
     private let placeHolder: UILabel = {
         let item = UILabel()
         item.translatesAutoresizingMaskIntoConstraints = false
-        item.textColor = .systemGray
+        item.textColor = Asset.accentColor.color
         item.text = "Search"
         item.font = UIFont.systemFont(ofSize: 17.0, weight: .regular)
         return item
@@ -28,7 +28,7 @@ final class SearchField: UITextField {
         item.translatesAutoresizingMaskIntoConstraints = false
         let image = UIImage(systemName: "x.circle.fill")?.withRenderingMode(.alwaysTemplate)
         item.setBackgroundImage(image, for: .normal)
-        item.tintColor = .systemGray
+        item.tintColor = Asset.accentColor.color
         item.isHidden = true
         return item
     }()
@@ -37,10 +37,7 @@ final class SearchField: UITextField {
         super.init(frame: frame)
         addSubviews()
         addConstraints()
-        layer.cornerRadius = Constants.cornerRadius
-        backgroundColor = .black
-        textColor = .systemGray
-        cancleButton.addTarget(self, action: #selector(cancelButtonDidTap), for: .touchUpInside)
+        setupView()
     }
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
@@ -79,6 +76,14 @@ final class SearchField: UITextField {
 }
 // MARK: - private funcs
 private extension SearchField {
+    func setupView() {
+        layer.cornerRadius = Constants.cornerRadius
+        layer.borderWidth = Constants.borderWidth
+        layer.borderColor = Asset.textColor.color.cgColor
+        backgroundColor = Asset.backgroundColor.color
+        textColor = Asset.accentColor.color
+        cancleButton.addTarget(self, action: #selector(cancelButtonDidTap), for: .touchUpInside)
+    }
     
     @objc func cancelButtonDidTap() {
         if text != nil {
@@ -136,5 +141,6 @@ private extension SearchField {
         static let cornerRadius: CGFloat = 10.0
         static let spacing: CGFloat = 7.0
         static let height: CGFloat = 22.0
+        static let borderWidth: CGFloat = 1.0
     }
 }

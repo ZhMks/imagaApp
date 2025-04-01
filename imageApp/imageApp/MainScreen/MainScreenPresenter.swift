@@ -6,6 +6,7 @@ protocol IMainScreePresenter: AnyObject {
     func returnNumberOfItems() -> Int
     func returnImageList() -> [MainScreenModel]
     func fetchMoreImages()
+    func fetchData()
 }
 // MARK: - view protocol
 protocol IMainScreenView: AnyObject {
@@ -31,11 +32,13 @@ final class MainScreenPresenter: IMainScreePresenter {
     
     func pushDetailsScreen(model: MainScreenModel) {
         let detailedModel = DetailScreenModel(url: model.url)
-        let detailScreen = ModuleBuilder.createDetailedScreen(model: detailedModel)
+        let coredataService = CoreDataModelService()
+        let detailScreen = ModuleBuilder.createDetailedScreen(model: detailedModel, coreDataService: coredataService)
         self.view?.showDetailScreen(detailScreen)
     }
+    
     func fetchData() {
-        dataService.initialFetchData(string: "google") { [weak self] result in
+        dataService.initialFetchData() { [weak self] result in
             switch result {
             case .success(let success):
                 self?.model = success

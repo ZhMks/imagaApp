@@ -3,7 +3,7 @@ import Foundation
 protocol IDataService: AnyObject {
     var networkService: INetworkService { get }
     var decoderService: IDecoderService { get }
-    func initialFetchData(string: String, completion: @escaping(Result<[MainScreenModel], Error>) -> Void)
+    func initialFetchData(completion: @escaping(Result<[MainScreenModel], Error>) -> Void)
     func fetchMoreData(completion: @escaping(Result<[MainScreenModel], Error>) -> Void)
 }
 final class DataService: IDataService {
@@ -19,28 +19,29 @@ final class DataService: IDataService {
         self.decoderService = decoderService
     }
     // MARK: - Funcs
-    func initialFetchData(string: String,completion: @escaping(Result<[MainScreenModel], Error>) -> Void) {
-        networkService.fetchData(urlString: string, page: nil) { result in
+    func initialFetchData(completion: @escaping(Result<[MainScreenModel], Error>) -> Void) {
+        networkService.fetchData(page: nil) { result in
             switch result {
             case .success(let success):
-                self.decoderService.decode(
-                    networkData: success,
-                    completion: { (result: Result<MainResponseModel, Error>) in
-                    switch result {
-                    case .success(let successResponse):
-                        return
-                    case .failure(let failure):
-                        completion(.failure(failure))
-                    }
-                }
-            )
+                print(String(data: success, encoding: .utf8))
+//                self.decoderService.decode(
+//                    networkData: success,
+//                    completion: { (result: Result<MainResponseModel, Error>) in
+//                    switch result {
+//                    case .success(let successResponse):
+//                        return
+//                    case .failure(let failure):
+//                        completion(.failure(failure))
+//                    }
+//                }
+//            )
             case .failure(let failure):
                 completion(.failure(failure))
             }
         }
     }
     func fetchMoreData(completion: @escaping(Result<[MainScreenModel], Error>) -> Void) {
-        networkService.fetchData(urlString: "", page: "next") { result in
+        networkService.fetchData(page: "next") { result in
             switch result {
             case .success(let success):
                 self.decoderService.decode(

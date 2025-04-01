@@ -17,12 +17,12 @@ enum NetworkServiceErrors: String, Error {
     }
 }
 protocol INetworkService {
-    func fetchData(urlString: String, page: String?, completion: @escaping (Result<Data, NetworkServiceErrors>) -> Void)
+    func fetchData(page: String?, completion: @escaping (Result<Data, NetworkServiceErrors>) -> Void)
 }
 final class NetworkService: INetworkService {
     var isPaginating = false
     
-    func fetchData(urlString: String,page: String?, completion: @escaping (Result<Data, NetworkServiceErrors>) -> Void) {
+    func fetchData(page: String?, completion: @escaping (Result<Data, NetworkServiceErrors>) -> Void) {
         var urlString = ""
         if isPaginating {
             print("IS PAGINATING: \(isPaginating)")
@@ -30,9 +30,9 @@ final class NetworkService: INetworkService {
         }
         if let page = page {
             isPaginating = true
-           // urlString = "https://newsdata.io/api/1/latest?apikey=\(apiKey)&language=\(language)&page=\(page)"
+            urlString = "https://api.unsplash.com/photos/?client_id=Y85J2c5RV5FKn_XA-9Pjs4nsi0nB8IEdQOHWdFBgqkw"
         } else {
-          //  urlString = "https://newsdata.io/api/1/latest?apikey=\(apiKey)&language=\(language)"
+           urlString = "https://api.unsplash.com/photos/?client_id=Y85J2c5RV5FKn_XA-9Pjs4nsi0nB8IEdQOHWdFBgqkw"
         }
         guard let url = URL(string: urlString) else { return }
         
@@ -57,6 +57,7 @@ final class NetworkService: INetworkService {
                     completion(.failure(.internalServerError))
                 case 200:
                     if let data = data {
+                        self.isPaginating = false
                         completion(.success(data))
                     }
                 default:

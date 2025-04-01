@@ -71,12 +71,18 @@ final class DetailScreenViewController: UIViewController {
         super.viewDidLoad()
         addSubviews()
         createConstraints()
-        view.backgroundColor = .gray
+        view.backgroundColor = Asset.backgroundColor.color
         presenter.viewDidLoad(self)
     }
 }
 // MARK: - view output
 extension DetailScreenViewController: IDetailScreenView {
+    func popController() {
+        DispatchQueue.main.async {
+            self.navigationController?.popViewController(animated: true)
+        }
+    }
+    
     func updateData(_ model: DetailScreenModel) {
         let url = URL(string: model.url)
         photoImageView.kf.setImage(with: url, placeholder: UIImage(systemName: "xmark")) { [weak self] result in
@@ -86,7 +92,10 @@ extension DetailScreenViewController: IDetailScreenView {
                     self?.photoImageView.image = retrivedImage.image
                 }
             case .failure(let kfError):
-                print(kfError.localizedDescription)
+                let alertController = ModuleBuilder.createAlertController(with: kfError)
+                DispatchQueue.main.async {
+                    self?.present(alertController, animated: true)
+                }
             }
         }
     }
@@ -94,7 +103,7 @@ extension DetailScreenViewController: IDetailScreenView {
 // MARK: - private funcs
 private extension DetailScreenViewController {
     @objc func addToFavorites() {
-        
+        presenter.addToFavourites()
     }
     func addTargetToButton() {
         addToFavouriteButton.addTarget(self, action: #selector(addToFavorites), for: .touchUpInside)
