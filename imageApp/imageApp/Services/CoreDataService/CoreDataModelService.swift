@@ -1,4 +1,4 @@
-import Foundation
+import UIKit
 
 enum CustomError: Error {
     case failedSave
@@ -22,19 +22,34 @@ final class CoreDataModelService {
         initialFetch()
     }
     
-    func addNewModel(_ model: DetailScreenModel) {
+    func addNewModel(_ model: DetailScreenModel, image: UIImage, completion: (Result<Bool, CustomError>) -> Void) {
         guard let modelsArray = self.modelsArray else { return }
-        //        if modelsArray.contains(where: { $0.objectID != model.objectID }) {
-        //            let newModelToSave = FavouriteModel(context: coreDataSerivce.context)
-        //            coreDataSerivce.saveContext()
-        //            initialFetch()
-        //        }
+        if !modelsArray.contains(where: { $0.id == model.id }) {
+            let newModelToSave = FavouriteModel(context: coreDataSerivce.context)
+            newModelToSave.id = model.id
+            newModelToSave.authorname = model.authorName
+            newModelToSave.authorsurname = model.authorSurname
+            newModelToSave.city = model.location.city
+            newModelToSave.country = model.location.country
+            newModelToSave.date = model.creationDate
+            newModelToSave.image = image.pngData()
+            newModelToSave.numberOfDownloads = Int64(model.downloads)
+            coreDataSerivce.saveContext { result in
+                switch result {
+                case .success(let success):
+                    completion(.success(success))
+                case .failure(_):
+                    completion(.failure(.failedSave))
+                }
+            }
+            initialFetch()
+        }
     }
     
     func removeModel(_ model: FavouriteModel, completion: (Result<Bool, CustomError>) -> Void) {
         coreDataSerivce.deleObject(model: model) { result in
             switch result {
-            case .success(let success):
+            case .success(_):
                 initialFetch()
                 completion(.success(true))
             case .failure(let failure):
@@ -45,6 +60,7 @@ final class CoreDataModelService {
     }
     
     func returnData() -> [FavouriteModel] {
+        initialFetch()
         guard let modelsArray = modelsArray else { return [] }
         return modelsArray
     }

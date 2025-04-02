@@ -8,6 +8,7 @@ final class FavouriteViewController: UIViewController {
         let item = UITableView()
         item.rowHeight = UITableView.automaticDimension
         item.translatesAutoresizingMaskIntoConstraints = false
+        item.separatorStyle = .none
         return item
     }()
     // MARK: - lifecycle
@@ -19,16 +20,24 @@ final class FavouriteViewController: UIViewController {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        presenter.initialFetchData()
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         addSubviews()
         createConstraints()
         setupTableView()
+        presenter.viewDidLoad(self)
         view.backgroundColor = Asset.backgroundColor.color
     }
 }
 // MARK: - view output
 extension FavouriteViewController: IFavouriteScreenView {
+    
     func showErrorAlert(_ error: any Error) {
         let alertController = ModuleBuilder.createAlertController(with: error)
         DispatchQueue.main.async {
@@ -56,21 +65,24 @@ extension FavouriteViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: FavouriteTableCell.identifier, for: indexPath) as? FavouriteTableCell else { return UITableViewCell() }
-        cell.backgroundColor = .green
         let dataForCell = presenter.returnModelList()[indexPath.row]
         cell.delegate = self
         cell.updateCell(model: dataForCell)
+        cell.selectionStyle = .none
         return cell
     }
 }
 // MARK: - tableView delegate
 extension FavouriteViewController: UITableViewDelegate {
-    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let model = presenter.returnModelList()[indexPath.row]
+        presenter.pushDetailedScreen(with: model)
+    }
 }
 // MARK: -IFavouriteCell
 extension FavouriteViewController: IFavouriteCell {
     func favouriteButtonDidTap(_ model: FavouriteModel) {
-        presenter.removeFromFavourite(model: model)
+        presenter.removeFromFavourites(model: model)
     }
 }
 // MARK: - layout

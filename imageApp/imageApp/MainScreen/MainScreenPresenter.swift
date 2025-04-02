@@ -34,7 +34,7 @@ final class MainScreenPresenter: IMainScreePresenter {
     
     func pushDetailsScreen(model: MainScreenModel) {
         let coredataService = CoreDataModelService()
-        let detailScreen = ModuleBuilder.createDetailedScreen(model: model, coreDataService: coredataService, dataService: dataService)
+        let detailScreen = ModuleBuilder.createDetailedScreen(id: model.id, coreDataService: coredataService, dataService: dataService,isfromFavourite: false)
         self.view?.showDetailScreen(detailScreen)
     }
     

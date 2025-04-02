@@ -107,12 +107,14 @@ final class DataService: IDataService {
                     switch result {
                     case .success(let successDecode):
                         let detailScreenModel = DetailScreenModel(
+                            id: successDecode.id,
                             url: successDecode.links.regular,
                             authorName: successDecode.user.name,
                             authorSurname: successDecode.user.surname ?? "",
                             downloads: successDecode.downloads,
                             creationDate: successDecode.dateOfCreation,
-                            location: .init(city: successDecode.location.city, country: successDecode.location.country)
+                            location: .init(city: successDecode.location.city, country: successDecode.location.country),
+                            image: nil
                         )
                         completion(.success(detailScreenModel))
                     case .failure(let failure):

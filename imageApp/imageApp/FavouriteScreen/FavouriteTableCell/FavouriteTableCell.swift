@@ -13,6 +13,9 @@ final class FavouriteTableCell: UITableViewCell {
     private let favouriteImageView: UIImageView = {
         let item = UIImageView()
         item.translatesAutoresizingMaskIntoConstraints = false
+        item.contentMode = .scaleAspectFill
+        item.clipsToBounds = true
+        item.layer.cornerRadius = Constants.cornerRadius
         return item
     }()
     
@@ -20,6 +23,7 @@ final class FavouriteTableCell: UITableViewCell {
         let item = UILabel()
         item.translatesAutoresizingMaskIntoConstraints = false
         item.textColor = Asset.textColor.color
+        item.setContentHuggingPriority(.defaultHigh, for: .horizontal)
         return item
     }()
     
@@ -29,6 +33,12 @@ final class FavouriteTableCell: UITableViewCell {
         let backgroundImage = UIImage(systemName: "heart.fill")?.withRenderingMode(.alwaysTemplate)
         item.tintColor = Asset.accentColor.color
         item.setBackgroundImage(backgroundImage, for: .normal)
+        return item
+    }()
+    
+    private let wrapperView: UIView = {
+        let item = UIView()
+        item.translatesAutoresizingMaskIntoConstraints = false
         return item
     }()
     // MARK: - lifecycle
@@ -45,17 +55,12 @@ final class FavouriteTableCell: UITableViewCell {
     
     func updateCell(model: FavouriteModel) {
         self.model = model
-        guard let stringFromModel = model.url else { return }
-        let url = URL(string: stringFromModel)
-        favouriteImageView.kf.setImage(with: url, placeholder: UIImage(systemName: "xmark")) { [weak self] result in
-            switch result {
-            case .success(let retrivedImage):
-                DispatchQueue.main.async {
-                    self?.favouriteImageView.image = retrivedImage.image
-                }
-            case .failure(let error):
-                print(error.localizedDescription)
-            }
+        authorNameLabel.text = "\(model.authorname ?? "") \(model.authorsurname ?? "")"
+        if let data = model.image {
+            let image = UIImage(data: data)
+            favouriteImageView.image = image
+        } else {
+            favouriteImageView.image = UIImage(systemName: "xmark")
         }
     }
 }
@@ -74,52 +79,84 @@ private extension FavouriteTableCell {
 private extension FavouriteTableCell {
     
     func addSubviews() {
-        contentView.addSubview(favouriteImageView)
-        contentView.addSubview(authorNameLabel)
-        contentView.addSubview(favouriteButton)
+        contentView.addSubview(wrapperView)
+        wrapperView.addSubview(favouriteImageView)
+        wrapperView.addSubview(authorNameLabel)
+        wrapperView.addSubview(favouriteButton)
     }
     
     func createConstraints() {
         let safeArea = contentView.safeAreaLayoutGuide
         NSLayoutConstraint.activate(
-            createConstraintsForImageView(safeArea) +
-            createConstraintsForNameLabel(safeArea) +
-            createConstraintsForFavouriteButton(safeArea)
+            createConstraintsForWrapperView(safeArea) +
+            createConstraintsForImageView() +
+            createConstraintsForNameLabel() +
+            createConstraintsForFavouriteButton()
         )
     }
     
-    func createConstraintsForImageView(_ safeArea: UILayoutGuide) -> [NSLayoutConstraint] {
-        let heightAspect: CGFloat = (Constants.imageWidth / (UIScreen.main.bounds.width - Spacing.standar))
-        return [
-            favouriteImageView.topAnchor.constraint(equalTo: safeArea.topAnchor),
-            favouriteImageView.leadingAnchor.constraint(equalTo: safeArea.leadingAnchor),
-            favouriteImageView.trailingAnchor.constraint(lessThanOrEqualTo: authorNameLabel.leadingAnchor),
-            favouriteImageView.heightAnchor.constraint(equalTo: favouriteImageView.widthAnchor, multiplier: heightAspect),
+    func createConstraintsForImageView() -> [NSLayoutConstraint] {
+         [
+            favouriteImageView.topAnchor.constraint(equalTo: wrapperView.topAnchor),
+            favouriteImageView.leadingAnchor.constraint(equalTo: wrapperView.leadingAnchor),
+            favouriteImageView.heightAnchor.constraint(equalToConstant: Constants.imageHeight),
             favouriteImageView.widthAnchor.constraint(equalToConstant: Constants.imageWidth),
-            favouriteImageView.bottomAnchor.constraint(equalTo: safeArea.bottomAnchor)
+            favouriteImageView.bottomAnchor.constraint(equalTo: wrapperView.bottomAnchor)
         ]
     }
     
-    func createConstraintsForNameLabel(_ safeArea: UILayoutGuide) -> [NSLayoutConstraint] {
+    func createConstraintsForNameLabel() -> [NSLayoutConstraint] {
         [
             authorNameLabel.centerYAnchor.constraint(equalTo: favouriteImageView.centerYAnchor),
+            authorNameLabel.leadingAnchor.constraint(equalTo: favouriteImageView.trailingAnchor, constant: Spacing.standar),
             authorNameLabel.trailingAnchor.constraint(lessThanOrEqualTo: favouriteButton.leadingAnchor),
-            authorNameLabel.bottomAnchor.constraint(equalTo: safeArea.bottomAnchor)
+            authorNameLabel.bottomAnchor.constraint(equalTo: wrapperView.bottomAnchor)
         ]
     }
     
-    func createConstraintsForFavouriteButton(_ safeArea: UILayoutGuide) -> [NSLayoutConstraint] {
+    func createConstraintsForFavouriteButton() -> [NSLayoutConstraint] {
         [
-            favouriteButton.topAnchor.constraint(equalTo: safeArea.topAnchor, constant: Spacing.standar),
-            favouriteButton.trailingAnchor.constraint(equalTo: safeArea.trailingAnchor, constant: -Spacing.standar),
-            favouriteButton.bottomAnchor.constraint(equalTo: safeArea.bottomAnchor, constant: -Spacing.standar)
+            favouriteButton.centerYAnchor.constraint(equalTo: authorNameLabel.centerYAnchor),
+            favouriteButton.trailingAnchor.constraint(equalTo: wrapperView.trailingAnchor, constant: -Spacing.standar),
+            favouriteButton.heightAnchor.constraint(equalToConstant: Constants.buttonHeight),
+            favouriteButton.widthAnchor.constraint(equalToConstant: Constants.buttonWidth)
+        ]
+    }
+    
+    func createConstraintsForWrapperView(_ safeArea: UILayoutGuide) -> [NSLayoutConstraint] {
+        let widthConstraint = wrapperView.widthAnchor
+            .constraint(
+                equalToConstant: UIScreen.main.bounds.width - Spacing.standar
+            )
+        widthConstraint.priority = UILayoutPriority(rawValue: 999)
+        let heightConstraint = wrapperView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor)
+        heightConstraint.priority = UILayoutPriority(rawValue: 999)
+        return  [
+            wrapperView.topAnchor
+                .constraint(
+                    equalTo: contentView.topAnchor,
+                    constant: Spacing.standar
+                ),
+            widthConstraint,
+            wrapperView.leftAnchor
+                .constraint(
+                    equalTo: safeArea.leftAnchor
+                ),
+            wrapperView.rightAnchor
+                .constraint(
+                    equalTo: safeArea.rightAnchor
+                ),
+            heightConstraint
         ]
     }
 }
 // MARK: - constants
 private extension FavouriteTableCell {
     enum Constants {
-        static let imageHeight: CGFloat = 40.0
-        static let imageWidth: CGFloat = 40.0
+        static let imageWidth: CGFloat = 120.0
+        static let imageHeight: CGFloat = 120.0
+        static let cornerRadius: CGFloat = 8.0
+        static let buttonWidth: CGFloat = 44.0
+        static let buttonHeight: CGFloat = 44.0
     }
 }

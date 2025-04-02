@@ -20,13 +20,15 @@ final class CoreDataService {
         persistentContainer.viewContext
     }()
     
-    func saveContext() {
+    func saveContext(completion: (Result<Bool, Error>) -> Void) {
         let context = persistentContainer.viewContext
         if context.hasChanges {
             do {
                 try context.save()
+                completion(.success(true))
             } catch {
                 print(error.localizedDescription)
+                completion(.failure(error))
             }
         }
     }

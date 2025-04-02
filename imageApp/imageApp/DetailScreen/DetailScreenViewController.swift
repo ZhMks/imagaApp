@@ -48,11 +48,6 @@ final class DetailScreenViewController: UIViewController {
         item.spacing = 8.0
         return item
     }()
-    private let addToFavouriteButton: UIButton = {
-        let item = UIButton(type: .system)
-        item.translatesAutoresizingMaskIntoConstraints = false
-        return item
-    }()
     // MARK: - lifecycle
     init(presenter: IDetailScreenPresenter) {
         self.presenter = presenter
@@ -75,6 +70,34 @@ final class DetailScreenViewController: UIViewController {
 }
 // MARK: - view output
 extension DetailScreenViewController: IDetailScreenView {
+    func performAnimation() {
+        let heartImageView = UIImageView(image: UIImage(systemName: "heart.fill"))
+        heartImageView.tintColor = Asset.accentColor.color
+        heartImageView.contentMode = .scaleAspectFit
+        heartImageView.alpha = 0.8
+        
+        let heartSize: CGFloat = 100
+        heartImageView.frame = CGRect(x: 0, y: 0, width: heartSize, height: heartSize)
+        heartImageView.center = view.center
+        
+        view.addSubview(heartImageView)
+        
+        UIView.animateKeyframes(withDuration: 0.6, delay: 0, options: [], animations: {
+            UIView.addKeyframe(withRelativeStartTime: 0, relativeDuration: 0.3) {
+                heartImageView.transform = CGAffineTransform(scaleX: 1.8, y: 1.8)
+            }
+            UIView.addKeyframe(withRelativeStartTime: 0.3, relativeDuration: 0.3) {
+                heartImageView.transform = CGAffineTransform(scaleX: 1.0, y: 1.0)
+            }
+        }) { _ in
+            UIView.animate(withDuration: 0.3, animations: {
+                heartImageView.alpha = 0
+            }) { _ in
+                heartImageView.removeFromSuperview()
+            }
+        }
+    }
+    
     func showErrorAlert(_ error: any Error) {
         let alertController = ModuleBuilder.createAlertController(with: error)
         DispatchQueue.main.async {
@@ -89,21 +112,25 @@ extension DetailScreenViewController: IDetailScreenView {
     }
     
     func updateData(_ model: DetailScreenModel) {
-        let url = URL(string: model.url)
+        let url = URL(string: model.url ?? "")
         authorLabel.text = "\(model.authorName)" + " \(model.authorSurname)"
-        numberOfDownloadsLabel.text = "Downloads: \(model.downloads)"
+        numberOfDownloadsLabel.attributedText = createAttributesString(model: model)
         dateLabel.text = convertData(model.creationDate)
         addressLabel.text = "\(model.location.city ?? "") \(model.location.city ?? "")"
-        photoImageView.kf.setImage(with: url, placeholder: UIImage(systemName: "xmark")) { [weak self] result in
-            switch result {
-            case .success(let retrivedImage):
-                DispatchQueue.main.async {
-                    self?.photoImageView.image = retrivedImage.image
-                }
-            case .failure(let kfError):
-                let alertController = ModuleBuilder.createAlertController(with: kfError)
-                DispatchQueue.main.async {
-                    self?.present(alertController, animated: true)
+        if let coredataImage = model.image {
+            photoImageView.image = coredataImage
+        } else {
+            photoImageView.kf.setImage(with: url, placeholder: UIImage(systemName: "xmark")) { [weak self] result in
+                switch result {
+                case .success(let retrivedImage):
+                    DispatchQueue.main.async {
+                        self?.photoImageView.image = retrivedImage.image
+                    }
+                case .failure(let kfError):
+                    let alertController = ModuleBuilder.createAlertController(with: kfError)
+                    DispatchQueue.main.async {
+                        self?.present(alertController, animated: true)
+                    }
                 }
             }
         }
@@ -112,17 +139,25 @@ extension DetailScreenViewController: IDetailScreenView {
 // MARK: - private funcs
 private extension DetailScreenViewController {
     @objc func addToFavorites() {
-        presenter.addToFavourites()
-    }
-    
-    func addTargetToButton() {
-        addToFavouriteButton.addTarget(self, action: #selector(addToFavorites), for: .touchUpInside)
+        guard let image = photoImageView.image else { return }
+        if let title = navigationItem.rightBarButtonItem?.title {
+            if title.contains("Add") {
+                presenter.addToFavourites(image: image)
+            } else {
+                presenter.removeFromFavourites()
+            }
+        }
     }
     
     func tuneNavItem() {
-        let rightBarButton = UIBarButtonItem(customView: addToFavouriteButton)
+        var title = "Add to favourite"
+        if presenter.isModelInfavourite() {
+            title = "Remove from favourite"
+        }
+        let rightBarButton = UIBarButtonItem(title: title, style: .done, target: self, action: #selector(addToFavorites))
         navigationItem.rightBarButtonItem = rightBarButton
     }
+    
     func convertData(_ date: String) -> String {
         let inputFormatter = DateFormatter()
         inputFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZ"
@@ -137,6 +172,20 @@ private extension DetailScreenViewController {
         } else {
             return "Invalid date"
         }
+    }
+    func createAttributesString(model: DetailScreenModel) -> NSAttributedString {
+        let baseText = "Downloads: "
+        let downloadsText = String(model.downloads)
+        let attributedBaseString = NSMutableAttributedString(
+            string: baseText,
+            attributes: [.foregroundColor : UIColor.black]
+        )
+        let downloadsAttributedString = NSMutableAttributedString(
+            string: downloadsText,
+            attributes: [.foregroundColor : Asset.accentColor.color]
+        )
+        attributedBaseString.append(downloadsAttributedString)
+        return attributedBaseString
     }
 }
 // MARK: - layout

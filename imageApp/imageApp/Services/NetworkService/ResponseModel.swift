@@ -34,6 +34,7 @@ struct LocationResponseMode: Codable {
     let country: String?
 }
 struct DetailResponseModel: Codable {
+    let id: String
     let dateOfCreation: String
     let links: LinksResponseModel
     let user: UserResponseModel
@@ -41,6 +42,7 @@ struct DetailResponseModel: Codable {
     let location: LocationResponseMode
     
     private enum CodingKeys: String, CodingKey {
+        case id = "id"
         case dateOfCreation = "created_at"
         case links = "urls"
         case user = "user"

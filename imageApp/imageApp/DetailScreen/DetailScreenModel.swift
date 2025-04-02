@@ -1,12 +1,14 @@
 import UIKit
 
 struct DetailScreenModel {
-    let url: String
+    let id: String
+    let url: String?
     let authorName: String
     let authorSurname: String
     let downloads: Int
     let creationDate: String
     let location: DetailScreenLocationModel
+    let image: UIImage?
 }
 
 struct DetailScreenLocationModel {
