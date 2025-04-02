@@ -27,7 +27,6 @@ final class DetailScreenViewController: UIViewController {
     private let numberOfDownloadsLabel: UILabel = {
         let item = UILabel()
         item.translatesAutoresizingMaskIntoConstraints = false
-        item.text = "5"
         item.textColor = Asset.accentColor.color
         item.font = UIFont.systemFont(ofSize: 15)
         return item
@@ -45,7 +44,7 @@ final class DetailScreenViewController: UIViewController {
         item.alignment = .leading
         item.axis = .vertical
         item.distribution = .fillProportionally
-        item.spacing = 8.0
+        item.spacing = Spacing.standar / 2
         return item
     }()
     // MARK: - lifecycle
@@ -211,7 +210,6 @@ extension DetailScreenViewController {
         let heightAspect: CGFloat = (Constants.imageWidth / (UIScreen.main.bounds.width - Spacing.standar))
         return [
             photoImageView.topAnchor.constraint(equalTo: safeArea.topAnchor),
-            photoImageView.centerXAnchor.constraint(equalTo: safeArea.centerXAnchor),
             photoImageView.heightAnchor.constraint(equalTo: photoImageView.widthAnchor, multiplier: heightAspect),
             photoImageView.leadingAnchor.constraint(equalTo: safeArea.leadingAnchor),
             photoImageView.trailingAnchor.constraint(equalTo: safeArea.trailingAnchor)
@@ -220,9 +218,10 @@ extension DetailScreenViewController {
     
     func createConstraintsForLabelsStackView(_ safeArea: UILayoutGuide) -> [NSLayoutConstraint] {
         [
-            labelsStackView.topAnchor.constraint(equalTo: photoImageView.bottomAnchor, constant: Spacing.standar),
+            labelsStackView.topAnchor.constraint(equalTo: photoImageView.bottomAnchor, constant: Spacing.standar / 2),
             labelsStackView.leadingAnchor.constraint(equalTo: safeArea.leadingAnchor, constant: Spacing.standar),
-            labelsStackView.trailingAnchor.constraint(equalTo: safeArea.trailingAnchor, constant: -Spacing.standar)
+            labelsStackView.trailingAnchor.constraint(equalTo: safeArea.trailingAnchor, constant: -Spacing.standar),
+            labelsStackView.bottomAnchor.constraint(equalTo: safeArea.bottomAnchor)
         ]
     }
 }
