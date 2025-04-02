@@ -42,7 +42,10 @@ final class MainScreenPresenter: IMainScreePresenter {
         dataService.initialFetchData() { [weak self] result in
             switch result {
             case .success(let success):
+                let nsLock = NSLock()
+                nsLock.lock()
                 self?.modelList = success
+                nsLock.unlock()
                 self?.view?.updateData()
             case .failure(let failure):
                 self?.view?.showErrorAlert(failure)
@@ -70,7 +73,10 @@ final class MainScreenPresenter: IMainScreePresenter {
         dataService.fetchMoreData(page: page) { [weak self] result in
             switch result {
             case .success(let success):
+                let nsLock = NSLock()
+                nsLock.lock()
                 self?.modelList.append(contentsOf: success)
+                nsLock.unlock()
                 self?.view?.updateData()
             case .failure(let failure):
                 self?.view?.showErrorAlert(failure)
@@ -79,18 +85,25 @@ final class MainScreenPresenter: IMainScreePresenter {
     }
     
     func searchPhoto(page: Int, query: String) {
+        let nsLock = NSLock()
         dataService.searchPhoto(page: page, query: query) { [weak self] result in
             switch result {
             case .success(let success):
                 guard let searchlist = self?.searchedList else { return }
                 self?.modelList = []
                 if searchlist.isEmpty {
+                    nsLock.lock()
                     self?.searchedList = success
+                    nsLock.unlock()
                 } else {
                     if page != 1 {
+                        nsLock.lock()
                         self?.searchedList.append(contentsOf: success)
+                        nsLock.unlock()
                     } else {
+                        nsLock.lock()
                         self?.searchedList = success
+                        nsLock.unlock()
                     }
                 }
                 self?.view?.updateData()
