@@ -22,19 +22,19 @@ protocol INetworkService {
 }
 final class NetworkService: INetworkService {
     var isLoading = false
+    let key = "Y85J2c5RV5FKn_XA-9Pjs4nsi0nB8IEdQOHWdFBgqkw"
     
     func fetchData(page: Int = 1, query: String?, completion: @escaping (Result<Data, NetworkServiceErrors>) -> Void) {
         var urlString = ""
-        print(page)
         if isLoading {
             return
         }
         if let query = query {
             isLoading = true
-            urlString = "https://api.unsplash.com/search/photos?page=\(page)&query=\(query)&client_id=Y85J2c5RV5FKn_XA-9Pjs4nsi0nB8IEdQOHWdFBgqkw"
+            urlString = "https://api.unsplash.com/search/photos?page=\(page)&query=\(query)&client_id=\(key)"
         } else {
             isLoading = true
-            urlString = "https://api.unsplash.com/photos/?client_id=Y85J2c5RV5FKn_XA-9Pjs4nsi0nB8IEdQOHWdFBgqkw&page=\(page)"
+            urlString = "https://api.unsplash.com/photos/?client_id=\(key)&page=\(page)"
         }
         
         guard let url = URL(string: urlString) else { return }
