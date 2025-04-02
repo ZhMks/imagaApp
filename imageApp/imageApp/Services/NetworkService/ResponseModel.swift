@@ -5,7 +5,6 @@ struct MainResponseModel: Codable {
     let likes: Int
     let urls: LinksResponseModel
     let user: UserResponseModel
-    
 }
 
 struct UserResponseModel: Codable {
@@ -29,10 +28,12 @@ struct LinksResponseModel: Codable {
 struct SearchResponseModel: Codable {
     let results: [MainResponseModel]
 }
+
 struct LocationResponseMode: Codable {
     let city: String?
     let country: String?
 }
+
 struct DetailResponseModel: Codable {
     let id: String
     let dateOfCreation: String
