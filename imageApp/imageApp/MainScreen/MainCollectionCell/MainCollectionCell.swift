@@ -31,7 +31,6 @@ final class MainCollectionCell: UICollectionViewCell {
     
     override func prepareForReuse() {
         super.prepareForReuse()
-        photoImageView.image = nil
         ImageCache.default.clearCache()
     }
     // MARK: - funcs
@@ -42,7 +41,7 @@ final class MainCollectionCell: UICollectionViewCell {
             with: url,
             placeholder: UIImage(systemName: "xmark"),
             options: [
-                .transition(.fade(1.0))
+                .transition(.fade(0.5))
             ]
         ) { [weak self] result in
             switch result {
