@@ -7,14 +7,12 @@ final class DetailScreenViewController: UIViewController {
     private let photoImageView: UIImageView = {
         let item = UIImageView()
         item.translatesAutoresizingMaskIntoConstraints = false
-        let image = UIImage(systemName: "checkmark")
-        item.image = image
+        item.contentMode = .scaleAspectFit
         return item
     }()
     private let authorLabel: UILabel = {
         let item = UILabel()
         item.translatesAutoresizingMaskIntoConstraints = false
-        item.text = "MASS ZHUIN"
         item.textColor = Asset.textColor.color
         item.font = UIFont.boldSystemFont(ofSize: 17)
         return item
@@ -22,7 +20,6 @@ final class DetailScreenViewController: UIViewController {
     private let dateLabel: UILabel = {
         let item = UILabel()
         item.translatesAutoresizingMaskIntoConstraints = false
-        item.text = "MASS ZHUIN"
         item.textColor = Asset.textColor.color
         item.font = UIFont.systemFont(ofSize: 15)
         return item
@@ -38,7 +35,6 @@ final class DetailScreenViewController: UIViewController {
     private let addressLabel: UILabel = {
         let item = UILabel()
         item.translatesAutoresizingMaskIntoConstraints = false
-        item.text = "MASS ZHUIN"
         item.textColor = Asset.textColor.color
         item.font = UIFont.systemFont(ofSize: 14)
         return item
@@ -73,10 +69,19 @@ final class DetailScreenViewController: UIViewController {
         createConstraints()
         view.backgroundColor = Asset.backgroundColor.color
         presenter.viewDidLoad(self)
+        tuneNavItem()
+        presenter.fetchDetailInformation()
     }
 }
 // MARK: - view output
 extension DetailScreenViewController: IDetailScreenView {
+    func showErrorAlert(_ error: any Error) {
+        let alertController = ModuleBuilder.createAlertController(with: error)
+        DispatchQueue.main.async {
+            self.navigationController?.present(alertController, animated: true)
+        }
+    }
+    
     func popController() {
         DispatchQueue.main.async {
             self.navigationController?.popViewController(animated: true)
@@ -85,6 +90,10 @@ extension DetailScreenViewController: IDetailScreenView {
     
     func updateData(_ model: DetailScreenModel) {
         let url = URL(string: model.url)
+        authorLabel.text = "\(model.authorName)" + " \(model.authorSurname)"
+        numberOfDownloadsLabel.text = "Downloads: \(model.downloads)"
+        dateLabel.text = convertData(model.creationDate)
+        addressLabel.text = "\(model.location.city ?? "") \(model.location.city ?? "")"
         photoImageView.kf.setImage(with: url, placeholder: UIImage(systemName: "xmark")) { [weak self] result in
             switch result {
             case .success(let retrivedImage):
@@ -105,8 +114,29 @@ private extension DetailScreenViewController {
     @objc func addToFavorites() {
         presenter.addToFavourites()
     }
+    
     func addTargetToButton() {
         addToFavouriteButton.addTarget(self, action: #selector(addToFavorites), for: .touchUpInside)
+    }
+    
+    func tuneNavItem() {
+        let rightBarButton = UIBarButtonItem(customView: addToFavouriteButton)
+        navigationItem.rightBarButtonItem = rightBarButton
+    }
+    func convertData(_ date: String) -> String {
+        let inputFormatter = DateFormatter()
+        inputFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZ"
+        inputFormatter.locale = Locale(identifier: "en_US_POSIX")
+        inputFormatter.timeZone = TimeZone(abbreviation: "UTC")
+        
+        if let dateString = inputFormatter.date(from: date) {
+            let outputFormatter = DateFormatter()
+            outputFormatter.dateFormat = "MMM d, yyyy"
+            outputFormatter.locale = Locale.current
+            return outputFormatter.string(from: dateString)
+        } else {
+            return "Invalid date"
+        }
     }
 }
 // MARK: - layout

@@ -9,7 +9,7 @@ final class ModuleBuilder {
         let favouriteNavigationController = UINavigationController(rootViewController: favouriteScreen)
         tabBar.viewControllers = [mainNavigationController, favouriteNavigationController]
         tabBar.selectedIndex = 0
-        tabBar.tabBar.backgroundColor = UIColor.systemBackground.withAlphaComponent(0.1)
+        tabBar.tabBar.backgroundColor = UIColor.systemBackground.withAlphaComponent(0.5)
         return tabBar
     }
     
@@ -35,8 +35,8 @@ final class ModuleBuilder {
         return favouriteScreen
     }
     
-    static func createDetailedScreen(model: DetailScreenModel, coreDataService: CoreDataModelService) -> UIViewController {
-        let presenter = DetailScreenPresenter(model: model, coreDataService: coreDataService)
+    static func createDetailedScreen(model: MainScreenModel, coreDataService: CoreDataModelService, dataService: IDataService) -> UIViewController {
+        let presenter = DetailScreenPresenter(model: model, coreDataService: coreDataService, dataService: dataService)
         let detailedScreen = DetailScreenViewController(presenter: presenter)
         return detailedScreen
     }

@@ -29,6 +29,13 @@ final class FavouriteViewController: UIViewController {
 }
 // MARK: - view output
 extension FavouriteViewController: IFavouriteScreenView {
+    func showErrorAlert(_ error: any Error) {
+        let alertController = ModuleBuilder.createAlertController(with: error)
+        DispatchQueue.main.async {
+            self.navigationController?.present(alertController, animated: true)
+        }
+    }
+    
     func showDetailScreen(_ controller: UIViewController) {
         DispatchQueue.main.async {
             self.navigationController?.pushViewController(controller, animated: true)
@@ -51,6 +58,7 @@ extension FavouriteViewController: UITableViewDataSource {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: FavouriteTableCell.identifier, for: indexPath) as? FavouriteTableCell else { return UITableViewCell() }
         cell.backgroundColor = .green
         let dataForCell = presenter.returnModelList()[indexPath.row]
+        cell.delegate = self
         cell.updateCell(model: dataForCell)
         return cell
     }
@@ -58,6 +66,12 @@ extension FavouriteViewController: UITableViewDataSource {
 // MARK: - tableView delegate
 extension FavouriteViewController: UITableViewDelegate {
     
+}
+// MARK: -IFavouriteCell
+extension FavouriteViewController: IFavouriteCell {
+    func favouriteButtonDidTap(_ model: FavouriteModel) {
+        presenter.removeFromFavourite(model: model)
+    }
 }
 // MARK: - layout
 private extension FavouriteViewController {

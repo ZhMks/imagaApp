@@ -3,11 +3,13 @@ import UIKit
 protocol IFavouriteScreenPresenter: AnyObject {
     func returnNumberOfItems() -> Int
     func returnModelList() -> [FavouriteModel]
+    func removeFromFavourite(model: FavouriteModel)
 }
 // MARK: - view input
 protocol IFavouriteScreenView: AnyObject {
     func updateData()
     func showDetailScreen(_ controller: UIViewController)
+    func showErrorAlert(_ error: Error)
 }
 
 final class FavouritePresenter: IFavouriteScreenPresenter {
@@ -39,11 +41,22 @@ final class FavouritePresenter: IFavouriteScreenPresenter {
     }
     
     func pushDetailedScreen(with model: FavouriteModel) {
-        guard let modelString = model.url else { return }
-        let detailedModel = DetailScreenModel(url: modelString)
-        let detailScreen = ModuleBuilder.createDetailedScreen(model: detailedModel, coreDataService: coreDataModelService)
-        DispatchQueue.main.async {
-            self.view?.showDetailScreen(detailScreen)
+//        guard let modelString = model.url else { return }
+//        let detailedModel = DetailScreenModel(url: model.url, authorName: model., authorSurname: <#T##String#>, likes: <#T##Int#>)
+//        let detailScreen = ModuleBuilder.createDetailedScreen(model: detailedModel, coreDataService: coreDataModelService)
+//        DispatchQueue.main.async {
+//            self.view?.showDetailScreen(detailScreen)
+//        }
+    }
+    
+    func removeFromFavourite(model: FavouriteModel) {
+        coreDataModelService.removeModel(model) { [weak self] result in
+            switch result {
+            case .success(let success):
+                self?.view?.updateData()
+            case .failure(let failure):
+                self?.view?.showErrorAlert(failure)
+            }
         }
     }
 }

@@ -5,8 +5,10 @@ protocol IMainScreePresenter: AnyObject {
     func viewDidLoad(_ view: IMainScreenView)
     func returnNumberOfItems() -> Int
     func returnImageList() -> [MainScreenModel]
-    func fetchMoreImages()
+    func fetchMoreImages(page: Int)
     func fetchData()
+    func searchPhoto(page: Int, query: String)
+    func emptySearchList()
 }
 // MARK: - view protocol
 protocol IMainScreenView: AnyObject {
@@ -18,8 +20,8 @@ protocol IMainScreenView: AnyObject {
 final class MainScreenPresenter: IMainScreePresenter {
     // MARK: - properties
     weak var view: IMainScreenView?
-    var filteredList: [MainScreenModel]?
-    private var model: [MainScreenModel] = []
+    private var modelList: [MainScreenModel] = []
+    private var searchedList: [MainScreenModel] = []
     private let dataService: IDataService
     // MARK: - lifecycle
     init(dataService: IDataService) {
@@ -31,9 +33,8 @@ final class MainScreenPresenter: IMainScreePresenter {
     }
     
     func pushDetailsScreen(model: MainScreenModel) {
-        let detailedModel = DetailScreenModel(url: model.url)
         let coredataService = CoreDataModelService()
-        let detailScreen = ModuleBuilder.createDetailedScreen(model: detailedModel, coreDataService: coredataService)
+        let detailScreen = ModuleBuilder.createDetailedScreen(model: model, coreDataService: coredataService, dataService: dataService)
         self.view?.showDetailScreen(detailScreen)
     }
     
@@ -41,40 +42,65 @@ final class MainScreenPresenter: IMainScreePresenter {
         dataService.initialFetchData() { [weak self] result in
             switch result {
             case .success(let success):
-                self?.model = success
-                self?.filteredList = success
+                self?.modelList = success
                 self?.view?.updateData()
             case .failure(let failure):
-                print()
                 self?.view?.showErrorAlert(failure)
             }
         }
     }
     
     func returnNumberOfItems() -> Int {
-        guard let filteredList = filteredList else { return 0 }
-        return filteredList.count
+        if searchedList.isEmpty {
+            return modelList.count
+        } else {
+            return searchedList.count
+        }
     }
     
     func returnImageList() -> [MainScreenModel] {
-        guard let filteredList = filteredList else { return [] }
-        return filteredList
+        if searchedList.isEmpty {
+            return modelList
+        } else {
+            return searchedList
+        }
     }
     
-    func searchInformation(text: String) {
-        
-    }
-    
-    func fetchMoreImages() {
-        dataService.fetchMoreData { [weak self] result in
+    func fetchMoreImages(page: Int) {
+        dataService.fetchMoreData(page: page) { [weak self] result in
             switch result {
             case .success(let success):
-                self?.model.append(contentsOf: success)
-                self?.filteredList = self?.model
+                self?.modelList.append(contentsOf: success)
                 self?.view?.updateData()
             case .failure(let failure):
                 self?.view?.showErrorAlert(failure)
             }
         }
+    }
+    
+    func searchPhoto(page: Int, query: String) {
+        dataService.searchPhoto(page: page, query: query) { [weak self] result in
+            switch result {
+            case .success(let success):
+                guard let searchlist = self?.searchedList else { return }
+                self?.modelList = []
+                if searchlist.isEmpty {
+                    self?.searchedList = success
+                } else {
+                    if page != 1 {
+                        self?.searchedList.append(contentsOf: success)
+                    } else {
+                        self?.searchedList = success
+                    }
+                }
+                self?.view?.updateData()
+            case .failure(let failure):
+                self?.view?.showErrorAlert(failure)
+            }
+        }
+    }
+    
+    func emptySearchList() {
+        searchedList = []
     }
 }
